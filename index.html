@@ -1,77 +1,88 @@
+
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Thiết kế vòng tay</title>
-  <style>
-    body { font-family: Arial; display: flex; gap: 20px; padding: 20px; }
-    #toolbox { width: 150px; border: 1px solid #ccc; padding: 10px; }
-    .bead { width: 50px; height: 50px; margin: 10px 0; cursor: grab; }
-    #designArea {
-      width: 500px; height: 300px;
-      border: 2px dashed #888; position: relative;
-    }
-    .bead-on-canvas {
-      position: absolute; width: 50px; height: 50px;
-      cursor: move;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vòng Tay Designer</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        img {
+            max-width: 90%;
+            margin-top: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+        .option-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            width: 200px;
+        }
+        select {
+            padding: 6px 10px;
+            font-size: 14px;
+            margin-top: 10px;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
+    <h1>Vòng Tay Designer</h1>
+    <img id="img-19hat" src="vongtay-demo.png" alt="Vòng Tay 19 hạt (10mm)" />
+    <img id="img-22hat" src="vongtay-22hat.png" alt="Vòng Tay 22 hạt (8mm)" style="display:none;" />
 
-  <div id="toolbox">
-    <h3>Hạt đá</h3>
-    <img src="https://i.imgur.com/1.png" class="bead" draggable="true">
-    <img src="https://i.imgur.com/2.png" class="bead" draggable="true">
-  </div>
+    <div class="option-container">
+        <div class="box">
+            <h3>Kiểu Vòng</h3>
+            <select id="kieu-vong">
+                <option value="tet-day">Tết dây</option>
+                <option value="co-gian">Co giãn</option>
+            </select>
+        </div>
+        <div class="box">
+            <h3>Loại Đá</h3>
+            <select id="loai-da">
+                <option value="da1">Đá 1</option>
+                <option value="da2">Đá 2</option>
+                <option value="da3">Đá 3</option>
+                <option value="da4">Đá 4</option>
+                <option value="da5">Đá 5</option>
+            </select>
+        </div>
+        <div class="box">
+            <h3>Cỡ Đá</h3>
+            <select id="co-da">
+                <option value="8mm">8mm (22 hạt)</option>
+                <option value="10mm" selected>10mm (19 hạt)</option>
+            </select>
+        </div>
+    </div>
 
-  <div id="designArea"></div>
-
-  <script>
-    const beads = document.querySelectorAll('.bead');
-    const designArea = document.getElementById('designArea');
-
-    beads.forEach(bead => {
-      bead.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('src', e.target.src);
-      });
-    });
-
-    designArea.addEventListener('dragover', (e) => e.preventDefault());
-
-    designArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const src = e.dataTransfer.getData('src');
-      const newBead = document.createElement('img');
-      newBead.src = src;
-      newBead.className = 'bead-on-canvas';
-      newBead.style.left = (e.offsetX - 25) + 'px';
-      newBead.style.top = (e.offsetY - 25) + 'px';
-      designArea.appendChild(newBead);
-
-      // Di chuyển hạt đã thả
-      newBead.onmousedown = function(event) {
-        const shiftX = event.clientX - newBead.getBoundingClientRect().left;
-        const shiftY = event.clientY - newBead.getBoundingClientRect().top;
-
-        function moveAt(pageX, pageY) {
-          newBead.style.left = (pageX - designArea.offsetLeft - shiftX) + 'px';
-          newBead.style.top = (pageY - designArea.offsetTop - shiftY) + 'px';
-        }
-
-        function onMouseMove(e) {
-          moveAt(e.pageX, e.pageY);
-        }
-
-        document.addEventListener('mousemove', onMouseMove);
-
-        document.onmouseup = function() {
-          document.removeEventListener('mousemove', onMouseMove);
-          document.onmouseup = null;
-        };
-      };
-    });
-  </script>
-
+    <script>
+        const coDaSelect = document.getElementById("co-da");
+        const img19 = document.getElementById("img-19hat");
+        const img22 = document.getElementById("img-22hat");
+        coDaSelect.addEventListener("change", function() {
+            if (this.value === "8mm") {
+                img19.style.display = "none";
+                img22.style.display = "inline";
+            } else {
+                img19.style.display = "inline";
+                img22.style.display = "none";
+            }
+        });
+    </script>
 </body>
 </html>
