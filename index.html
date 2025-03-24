@@ -1,88 +1,57 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vòng Tay Designer</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            text-align: center;
-            background-color: #f9f9f9;
-        }
-        img {
-            max-width: 90%;
-            margin-top: 20px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-        }
-        .option-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-            gap: 20px;
-        }
-        .box {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 15px;
-            background: white;
-            width: 200px;
-        }
-        select {
-            padding: 6px 10px;
-            font-size: 14px;
-            margin-top: 10px;
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Vòng Tay Designer</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; }
+    .vong-tay { position: relative; display: inline-block; }
+    .hat { width: 30px; height: 30px; border-radius: 50%; position: absolute; cursor: pointer; }
+    .da-mau { width: 30px; height: 30px; border-radius: 50%; display: inline-block; margin: 5px; cursor: grab; border: 1px solid #000; }
+    .da-container { margin-top: 20px; }
+  </style>
 </head>
 <body>
-    <h1>Vòng Tay Designer</h1>
-    <img id="img-19hat" src="vongtay-demo.png" alt="Vòng Tay 19 hạt (10mm)" />
-    <img id="img-22hat" src="vongtay-22hat.png" alt="Vòng Tay 22 hạt (8mm)" style="display:none;" />
-
-    <div class="option-container">
-        <div class="box">
-            <h3>Kiểu Vòng</h3>
-            <select id="kieu-vong">
-                <option value="tet-day">Tết dây</option>
-                <option value="co-gian">Co giãn</option>
-            </select>
-        </div>
-        <div class="box">
-            <h3>Loại Đá</h3>
-            <select id="loai-da">
-                <option value="da1">Đá 1</option>
-                <option value="da2">Đá 2</option>
-                <option value="da3">Đá 3</option>
-                <option value="da4">Đá 4</option>
-                <option value="da5">Đá 5</option>
-            </select>
-        </div>
-        <div class="box">
-            <h3>Cỡ Đá</h3>
-            <select id="co-da">
-                <option value="8mm">8mm (22 hạt)</option>
-                <option value="10mm" selected>10mm (19 hạt)</option>
-            </select>
-        </div>
-    </div>
-
+  <h2>Vòng Tay Designer</h2>
+  <div class="vong-tay" id="vong-tay">
+    <img src="vongtay-demo.png" alt="Vòng tay 19 hạt">
+    <!-- 19 vị trí hạt -->
     <script>
-        const coDaSelect = document.getElementById("co-da");
-        const img19 = document.getElementById("img-19hat");
-        const img22 = document.getElementById("img-22hat");
-        coDaSelect.addEventListener("change", function() {
-            if (this.value === "8mm") {
-                img19.style.display = "none";
-                img22.style.display = "inline";
-            } else {
-                img19.style.display = "inline";
-                img22.style.display = "none";
-            }
+      const vongTay = document.getElementById('vong-tay');
+      const radius = 150, centerX = 200, centerY = 200;
+      for (let i = 0; i < 19; i++) {
+        const angle = (2 * Math.PI / 19) * i;
+        const hat = document.createElement('div');
+        hat.className = 'hat';
+        hat.style.left = (centerX + radius * Math.cos(angle)) + 'px';
+        hat.style.top = (centerY + radius * Math.sin(angle)) + 'px';
+        hat.dataset.index = i;
+        hat.addEventListener('click', () => { hat.style.background = ''; });
+        hat.addEventListener('dragover', e => e.preventDefault());
+        hat.addEventListener('drop', e => {
+          e.preventDefault();
+          const color = e.dataTransfer.getData("color");
+          hat.style.background = color;
         });
+        vongTay.appendChild(hat);
+      }
     </script>
+  </div>
+
+  <div class="da-container">
+    <!-- 5 viên đá demo -->
+    <div class="da-mau" draggable="true" style="background: red;" ondragstart="drag(event)" data-color="red"></div>
+    <div class="da-mau" draggable="true" style="background: blue;" ondragstart="drag(event)" data-color="blue"></div>
+    <div class="da-mau" draggable="true" style="background: green;" ondragstart="drag(event)" data-color="green"></div>
+    <div class="da-mau" draggable="true" style="background: purple;" ondragstart="drag(event)" data-color="purple"></div>
+    <div class="da-mau" draggable="true" style="background: orange;" ondragstart="drag(event)" data-color="orange"></div>
+  </div>
+
+  <script>
+    function drag(ev) {
+      ev.dataTransfer.setData("color", ev.target.dataset.color);
+    }
+  </script>
 </body>
 </html>
