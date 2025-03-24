@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thiết kế vòng tay</title>
+  <style>
+    body { font-family: Arial; display: flex; gap: 20px; padding: 20px; }
+    #toolbox { width: 150px; border: 1px solid #ccc; padding: 10px; }
+    .bead { width: 50px; height: 50px; margin: 10px 0; cursor: grab; }
+    #designArea {
+      width: 500px; height: 300px;
+      border: 2px dashed #888; position: relative;
+    }
+    .bead-on-canvas {
+      position: absolute; width: 50px; height: 50px;
+      cursor: move;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toolbox">
+    <h3>Hạt đá</h3>
+    <img src="https://i.imgur.com/1.png" class="bead" draggable="true">
+    <img src="https://i.imgur.com/2.png" class="bead" draggable="true">
+  </div>
+
+  <div id="designArea"></div>
+
+  <script>
+    const beads = document.querySelectorAll('.bead');
+    const designArea = document.getElementById('designArea');
+
+    beads.forEach(bead => {
+      bead.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('src', e.target.src);
+      });
+    });
+
+    designArea.addEventListener('dragover', (e) => e.preventDefault());
+
+    designArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const src = e.dataTransfer.getData('src');
+      const newBead = document.createElement('img');
+      newBead.src = src;
+      newBead.className = 'bead-on-canvas';
+      newBead.style.left = (e.offsetX - 25) + 'px';
+      newBead.style.top = (e.offsetY - 25) + 'px';
+      designArea.appendChild(newBead);
+
+      // Di chuyển hạt đã thả
+      newBead.onmousedown = function(event) {
+        const shiftX = event.clientX - newBead.getBoundingClientRect().left;
+        const shiftY = event.clientY - newBead.getBoundingClientRect().top;
+
+        function moveAt(pageX, pageY) {
+          newBead.style.left = (pageX - designArea.offsetLeft - shiftX) + 'px';
+          newBead.style.top = (pageY - designArea.offsetTop - shiftY) + 'px';
+        }
+
+        function onMouseMove(e) {
+          moveAt(e.pageX, e.pageY);
+        }
+
+        document.addEventListener('mousemove', onMouseMove);
+
+        document.onmouseup = function() {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.onmouseup = null;
+        };
+      };
+    });
+  </script>
+
+</body>
+</html>
