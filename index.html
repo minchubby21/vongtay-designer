@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Vòng Tay Designer</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 20px; }
+    .vong-tay { position: relative; display: inline-block; margin-bottom: 20px; }
+    .hat { border-radius: 50%; position: absolute; cursor: pointer; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
+    .da-mau { border-radius: 50%; display: inline-block; margin: 5px; cursor: grab; border: 2px solid #000; }
+    .da-container { margin-top: 20px; }
+    .options { display: flex; justify-content: center; margin-top: 20px; gap: 20px; }
+    .option-box { border: 1px solid #aaa; padding: 10px; border-radius: 5px; width: 150px; }
+    select { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Vòng Tay Designer</h2>
+  <div class="vong-tay" id="vong-tay">
+    <img id="vong-image" src="vongtay19.png" alt="Vòng tay" width="400" height="400">
+  </div>
+
+  <div class="options">
+    <div class="option-box">
+      <b>Kiểu vòng</b><br>
+      <select id="kieu-vong">
+        <option>Tết dây</option>
+        <option>Co giãn</option>
+      </select>
+    </div>
+    <div class="option-box">
+      <b>Loại đá</b><br>
+      <div class="da-container" id="da-container">
+      </div>
+    </div>
+    <div class="option-box">
+      <b>Cỡ đá</b><br>
+      <select id="co-da" onchange="switchVong()">
+        <option value="10">10mm</option>
+        <option value="8">8mm</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    const vongTay = document.getElementById('vong-tay');
+    const vongImage = document.getElementById('vong-image');
+    let currentHats = [];
+    let currentSize = 10;
+
+    const centerX = 200, centerY = 200;
+    const radiusMap = { '19': 150, '22': 150 };
+
+    function createHats(count) {
+      currentHats.forEach(h => vongTay.removeChild(h));
+      currentHats = [];
+
+      const radius = radiusMap[count];
+      const size = currentSize === 10 ? 30 : 18;
+      for (let i = 0; i < count; i++) {
+        const angle = (2 * Math.PI / count) * i;
+        const hat = document.createElement('div');
+        hat.className = 'hat';
+        hat.style.width = size + 'px';
+        hat.style.height = size + 'px';
+        hat.style.left = (centerX + radius * Math.cos(angle) - size/2) + 'px';
+        hat.style.top = (centerY + radius * Math.sin(angle) - size/2) + 'px';
+        hat.addEventListener('click', () => { hat.style.background = ''; });
+        hat.addEventListener('dragover', e => e.preventDefault());
+        hat.addEventListener('drop', e => {
+          e.preventDefault();
+          const color = e.dataTransfer.getData("color");
+          hat.style.background = color;
+        });
+        vongTay.appendChild(hat);
+        currentHats.push(hat);
+      }
+    }
+
+    function switchVong() {
+      const coDa = document.getElementById('co-da').value;
+      currentSize = parseInt(coDa);
+      if (coDa === '10') {
+        vongImage.src = 'vongtay19.png';
+        createHats(19);
+      } else {
+        vongImage.src = 'vongtay22.png';
+        createHats(22);
+      }
+    }
+
+    function initDaMau() {
+      const daContainer = document.getElementById('da-container');
+      const colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink'];
+      const size = 30;
+      colors.forEach(color => {
+        const da = document.createElement('div');
+        da.className = 'da-mau';
+        da.style.background = color;
+        da.style.width = size + 'px';
+        da.style.height = size + 'px';
+        da.setAttribute('draggable', 'true');
+        da.ondragstart = (e) => {
+          e.dataTransfer.setData("color", color);
+        };
+        daContainer.appendChild(da);
+      });
+    }
+
+    window.onload = () => {
+      createHats(19);
+      initDaMau();
+    };
+  </script>
+</body>
+</html>
