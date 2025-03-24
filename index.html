@@ -5,28 +5,65 @@
   <meta charset="UTF-8">
   <title>Vòng Tay Designer</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    .vong-tay { position: relative; display: inline-block; }
-    .hat { width: 30px; height: 30px; border-radius: 50%; position: absolute; cursor: pointer; }
-    .da-mau { width: 30px; height: 30px; border-radius: 50%; display: inline-block; margin: 5px; cursor: grab; border: 1px solid #000; }
+    body { font-family: sans-serif; text-align: center; margin: 20px; }
+    .vong-tay { position: relative; display: inline-block; margin-bottom: 20px; }
+    .hat { width: 40px; height: 40px; border-radius: 50%; position: absolute; cursor: pointer; border: 1px solid #333; }
+    .da-mau { width: 40px; height: 40px; border-radius: 50%; display: inline-block; margin: 5px; cursor: grab; border: 2px solid #000; }
     .da-container { margin-top: 20px; }
+    .options { display: flex; justify-content: center; margin-top: 20px; gap: 20px; }
+    .option-box { border: 1px solid #aaa; padding: 10px; border-radius: 5px; width: 150px; }
+    select { margin-top: 10px; }
   </style>
 </head>
 <body>
   <h2>Vòng Tay Designer</h2>
   <div class="vong-tay" id="vong-tay">
-    <img src="vongtay-demo.png" alt="Vòng tay 19 hạt">
-    <!-- 19 vị trí hạt -->
-    <script>
-      const vongTay = document.getElementById('vong-tay');
-      const radius = 150, centerX = 200, centerY = 200;
-      for (let i = 0; i < 19; i++) {
-        const angle = (2 * Math.PI / 19) * i;
+    <img id="vong-image" src="vongtay19.png" alt="Vòng tay" width="400" height="400">
+  </div>
+
+  <div class="options">
+    <div class="option-box">
+      <b>Kiểu vòng</b><br>
+      <select id="kieu-vong">
+        <option>Tết dây</option>
+        <option>Co giãn</option>
+      </select>
+    </div>
+    <div class="option-box">
+      <b>Loại đá</b><br>
+      <div class="da-container" id="da-container">
+        <!-- 6 đá mẫu -->
+      </div>
+    </div>
+    <div class="option-box">
+      <b>Cỡ đá</b><br>
+      <select id="co-da" onchange="switchVong()">
+        <option value="10">10mm</option>
+        <option value="8">8mm</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    const vongTay = document.getElementById('vong-tay');
+    const vongImage = document.getElementById('vong-image');
+    let currentHats = [];
+
+    const radiusMap = { '19': 160, '22': 160 };
+    const centerX = 200, centerY = 200;
+
+    function createHats(count) {
+      // Xóa hạt cũ
+      currentHats.forEach(h => vongTay.removeChild(h));
+      currentHats = [];
+
+      const radius = radiusMap[count];
+      for (let i = 0; i < count; i++) {
+        const angle = (2 * Math.PI / count) * i;
         const hat = document.createElement('div');
         hat.className = 'hat';
         hat.style.left = (centerX + radius * Math.cos(angle)) + 'px';
         hat.style.top = (centerY + radius * Math.sin(angle)) + 'px';
-        hat.dataset.index = i;
         hat.addEventListener('click', () => { hat.style.background = ''; });
         hat.addEventListener('dragover', e => e.preventDefault());
         hat.addEventListener('drop', e => {
@@ -35,23 +72,41 @@
           hat.style.background = color;
         });
         vongTay.appendChild(hat);
+        currentHats.push(hat);
       }
-    </script>
-  </div>
-
-  <div class="da-container">
-    <!-- 5 viên đá demo -->
-    <div class="da-mau" draggable="true" style="background: red;" ondragstart="drag(event)" data-color="red"></div>
-    <div class="da-mau" draggable="true" style="background: blue;" ondragstart="drag(event)" data-color="blue"></div>
-    <div class="da-mau" draggable="true" style="background: green;" ondragstart="drag(event)" data-color="green"></div>
-    <div class="da-mau" draggable="true" style="background: purple;" ondragstart="drag(event)" data-color="purple"></div>
-    <div class="da-mau" draggable="true" style="background: orange;" ondragstart="drag(event)" data-color="orange"></div>
-  </div>
-
-  <script>
-    function drag(ev) {
-      ev.dataTransfer.setData("color", ev.target.dataset.color);
     }
+
+    function switchVong() {
+      const coDa = document.getElementById('co-da').value;
+      if (coDa === '10') {
+        vongImage.src = 'vongtay19.png';
+        createHats(19);
+      } else {
+        vongImage.src = 'vongtay22.png';
+        createHats(22);
+      }
+    }
+
+    function initDaMau() {
+      const daContainer = document.getElementById('da-container');
+      const colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink'];
+      colors.forEach(color => {
+        const da = document.createElement('div');
+        da.className = 'da-mau';
+        da.style.background = color;
+        da.setAttribute('draggable', 'true');
+        da.dataset.color = color;
+        da.ondragstart = (e) => {
+          e.dataTransfer.setData("color", color);
+        };
+        daContainer.appendChild(da);
+      });
+    }
+
+    window.onload = () => {
+      createHats(19);
+      initDaMau();
+    };
   </script>
 </body>
 </html>
